@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CustomWidget.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">custom-widget</a> &gt; <a href="index.source.html" class="el_package">edu.jsu.mcis</a> &gt; <span class="el_source">CustomWidget.java</span></div><h1>CustomWidget.java</h1><pre class="source lang-java linenums">package edu.jsu.mcis;
+
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import java.util.*;
+
+public class CustomWidget extends JPanel implements MouseListener {
+    private java.util.List&lt;ShapeObserver&gt; observers;
+    
+    
+<span class="fc" id="L12">    private final Color HEX_SELECTED_COLOR = Color.green;</span>
+<span class="fc" id="L13">	private final Color OCT_SELECTED_COLOR = Color.red;</span>
+<span class="fc" id="L14">    private final Color DESELECTED_COLOR = Color.white;</span>
+    private boolean selected;
+    private Point[] hexVertex;
+	private Point[] octVertex;
+
+    
+<span class="fc" id="L20">    public CustomWidget() {</span>
+<span class="fc" id="L21">        observers = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L22">        Dimension dim = getPreferredSize();</span>
+<span class="fc" id="L23">        selected = false;</span>
+		
+<span class="fc" id="L25">        hexVertex = new Point[6];</span>
+<span class="fc bfc" id="L26" title="All 2 branches covered.">        for(int i = 0; i &lt; hexVertex.length; i++) { hexVertex[i] = new Point(); }</span>
+		
+<span class="fc" id="L28">		octVertex = new Point[8];</span>
+<span class="fc bfc" id="L29" title="All 2 branches covered.">        for(int i = 0; i &lt; octVertex.length; i++) { octVertex[i] = new Point(); }</span>
+		
+<span class="fc" id="L31">        calculateVertices(dim.width, dim.height);</span>
+<span class="fc" id="L32">        setBorder(BorderFactory.createLineBorder(Color.black));</span>
+<span class="fc" id="L33">        addMouseListener(this);</span>
+<span class="fc" id="L34">    }</span>
+
+    
+    public void addShapeObserver(ShapeObserver observer) {
+<span class="nc bnc" id="L38" title="All 2 branches missed.">        if(!observers.contains(observer)) observers.add(observer);</span>
+<span class="nc" id="L39">    }</span>
+    public void removeShapeObserver(ShapeObserver observer) {
+<span class="nc" id="L41">        observers.remove(observer);</span>
+<span class="nc" id="L42">    }</span>
+    private void notifyObservers() {
+<span class="fc" id="L44">        ShapeEvent event = new ShapeEvent(selected);</span>
+<span class="pc bpc" id="L45" title="1 of 2 branches missed.">        for(ShapeObserver obs : observers) {</span>
+<span class="nc" id="L46">            obs.shapeChanged(event);</span>
+<span class="nc" id="L47">        }</span>
+<span class="fc" id="L48">    }</span>
+    
+    
+    @Override
+    public Dimension getPreferredSize() {
+<span class="fc" id="L53">        return new Dimension(200, 200);</span>
+    }
+
+    private void calculateVertices(int width, int height) {
+        // Square size should be half of the smallest dimension (width or height).
+		
+<span class="fc" id="L59">        int size = Math.min(width, height) / 2;</span>
+		
+              
+<span class="fc bfc" id="L62" title="All 2 branches covered.">        for(int i = 0; i &lt; hexVertex.length; i++) {</span>
+<span class="fc" id="L63">            double rads = 0 + (i * (Math.PI / (hexVertex.length / 2)));</span>
+<span class="fc" id="L64">            double x = Math.cos(rads);</span>
+<span class="fc" id="L65">            double y = Math.sin(rads);</span>
+<span class="fc" id="L66">            hexVertex[i].setLocation(width/3 + (x * (size/4)), height/2 + (y * (size/4)));</span>
+        }
+        
+<span class="fc bfc" id="L69" title="All 2 branches covered.">        for(int i = 0; i &lt; octVertex.length; i++) {</span>
+<span class="fc" id="L70">            double rads = Math.PI * 0.125 + (i * (Math.PI / (octVertex.length / 2)));</span>
+<span class="fc" id="L71">            double x = Math.cos(rads);</span>
+<span class="fc" id="L72">            double y = Math.sin(rads);</span>
+<span class="fc" id="L73">            octVertex[i].setLocation(width - (width/3) + (x * (size/4)), height/2 + (y * (size/4)));</span>
+        }
+<span class="fc" id="L75">    }</span>
+    
+    @Override
+    public void paintComponent(Graphics g) {
+<span class="nc" id="L79">        super.paintComponent(g);</span>
+<span class="nc" id="L80">        Graphics2D g2d = (Graphics2D)g;</span>
+<span class="nc" id="L81">        calculateVertices(getWidth(), getHeight());</span>
+<span class="nc" id="L82">        Shape shape[] = getShapes();</span>
+<span class="nc" id="L83">        g2d.setColor(Color.black);</span>
+<span class="nc" id="L84">        g2d.draw(shape[0]);</span>
+<span class="nc" id="L85">        g2d.draw(shape[1]);</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">        if(selected == true) {</span>
+<span class="nc" id="L87">            g2d.setColor(HEX_SELECTED_COLOR);</span>
+<span class="nc" id="L88">            g2d.fill(shape[0]);</span>
+<span class="nc" id="L89">            g2d.setColor(DESELECTED_COLOR);</span>
+<span class="nc" id="L90">            g2d.fill(shape[1]);</span>
+        }
+<span class="nc bnc" id="L92" title="All 2 branches missed.">        else if (!selected) {</span>
+<span class="nc" id="L93">            g2d.setColor(DESELECTED_COLOR);</span>
+<span class="nc" id="L94">            g2d.fill(shape[0]);</span>
+<span class="nc" id="L95">            g2d.setColor(OCT_SELECTED_COLOR);</span>
+<span class="nc" id="L96">            g2d.fill(shape[1]);</span>
+    }
+<span class="nc" id="L98">	}</span>
+    public void mouseClicked(MouseEvent event) {
+<span class="fc" id="L100">        Shape shape[] = getShapes();</span>
+<span class="pc bpc" id="L101" title="1 of 2 branches missed.">       if(shape[0].contains(event.getX(), event.getY())) {</span>
+<span class="fc" id="L102">            selected = true;</span>
+<span class="fc" id="L103">            notifyObservers();</span>
+        }
+<span class="pc bpc" id="L105" title="1 of 2 branches missed.">        if(shape[1].contains(event.getX(), event.getY())) {</span>
+<span class="nc" id="L106">            selected = false;</span>
+<span class="nc" id="L107">            notifyObservers();</span>
+        }
+<span class="fc" id="L109">        repaint(shape[0].getBounds());</span>
+<span class="fc" id="L110">        repaint(shape[1].getBounds());</span>
+<span class="fc" id="L111">    }</span>
+<span class="nc" id="L112">    public void mousePressed(MouseEvent event) {}</span>
+<span class="nc" id="L113">    public void mouseReleased(MouseEvent event) {}</span>
+<span class="nc" id="L114">    public void mouseEntered(MouseEvent event) {}</span>
+<span class="nc" id="L115">    public void mouseExited(MouseEvent event) {}</span>
+    
+    public Shape[] getShapes() {
+<span class="fc" id="L118">		Shape shape[] = new Shape[2];</span>
+<span class="fc" id="L119">		int[] x = new int[hexVertex.length];</span>
+<span class="fc" id="L120">        int[] y = new int[hexVertex.length];</span>
+		
+<span class="fc bfc" id="L122" title="All 2 branches covered.">        for(int i = 0; i &lt; hexVertex.length; i++) {</span>
+<span class="fc" id="L123">            x[i] = hexVertex[i].x;</span>
+<span class="fc" id="L124">            y[i] = hexVertex[i].y;</span>
+        }
+<span class="fc" id="L126">        shape[0] = new Polygon(x, y, hexVertex.length);</span>
+        
+<span class="fc" id="L128">        x = new int[octVertex.length];</span>
+<span class="fc" id="L129">        y = new int[octVertex.length];</span>
+<span class="fc bfc" id="L130" title="All 2 branches covered.">        for(int i = 0; i &lt; octVertex.length; i++) {</span>
+<span class="fc" id="L131">            x[i] = octVertex[i].x;</span>
+<span class="fc" id="L132">            y[i] = octVertex[i].y;</span>
+        }
+<span class="fc" id="L134">        shape[1] = new Polygon(x, y, octVertex.length);</span>
+		
+<span class="fc" id="L136">        return shape;</span>
+    }
+<span class="fc" id="L138">    public boolean isSelected() { return selected; }</span>
+
+
+
+	public static void main(String[] args) {
+<span class="nc" id="L143">		JFrame window = new JFrame(&quot;Custom Widget&quot;);</span>
+<span class="nc" id="L144">        window.add(new CustomWidget());</span>
+<span class="nc" id="L145">        window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);</span>
+<span class="nc" id="L146">        window.setSize(300, 300);</span>
+<span class="nc" id="L147">        window.setVisible(true);</span>
+<span class="nc" id="L148">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
